@@ -52,9 +52,9 @@ class CT_PropRig(object):
         #adding labels and text fields
         #textfieldgrp
         self.master_name = pm.textFieldGrp(label='Master CTRL Name:',placeholderText=self.prop+'_master_CTRL', parent=layout)
-        self.master_color = pm.colorIndexSliderGrp(label='Color:',minValue=14, maxValue=20, parent=layout)
+        self.master_color = pm.colorIndexSliderGrp(label='Color:',minValue=5, maxValue=20, parent=layout)
         self.offset_name = pm.textFieldGrp(label='Offset CTRL Name:', placeholderText=self.prop+'_offset_CTRL', parent=layout)
-        self.offset_color = pm.colorIndexSliderGrp(label='Color:', minValue=14, maxValue=20, parent=layout)
+        self.offset_color = pm.colorIndexSliderGrp(label='Color:', minValue=5, maxValue=20, parent=layout)
         # pm.button(label="Apply",command=partial(self.ct_Rigging, master_name, master_color, offset_name, offset_color))
         self.applybtn = pm.button(label="Apply",command=self.ct_Rigging)
 
@@ -86,12 +86,21 @@ class CT_PropRig(object):
         pm.rotate(master_ctrl, 90, 0, 0)
         pm.makeIdentity(master_ctrl[0], apply=True,
                         scale=True, translate=True, rotate=True)
+        pm.setAttr(master_name + "Shape.overrideEnabled", 1)
+        pm.setAttr(master_name + "Shape.overrideColor", master_color)
+
+        # master_ctrl[0].overrideEnabled.set(True)
+        # master_ctrl[0].overrideColor.set(master_color)
 
         offset_ctrl = pm.circle(c=(0, 0, 0), r=radius +
                                 radius * 0.3, name=offset_name)
         pm.rotate(offset_ctrl, 90, 0, 0)
         pm.makeIdentity(offset_ctrl[0], apply=True,
                         scale=True, translate=True, rotate=True)
+        pm.setAttr(offset_name + "Shape.overrideEnabled", 1)
+        pm.setAttr(offset_name + "Shape.overrideColor", offset_color)
+        # offset_ctrl[0].overrideEnabled.set(True)
+        # offset_ctrl[0].overrideColor.set(offset_color)
 
         # Basic parenting Hierarchy
         pm.parent(offset_ctrl, master_ctrl, s=True, r=True)
