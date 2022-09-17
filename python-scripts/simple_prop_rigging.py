@@ -19,13 +19,21 @@ Note: Will center your prop to the origin, the center of the ctrls will be the p
 
 '''
 import pymel.core as pm
+from functools import partial
 
-class PropRig(object):
+class CT_PropRig(object):
 
     def __init__(self):
         #window name and set up, variables
-        self.window="prop_rig_window"
+        self.window="CT_Window"
         self.title="Simple Prop Rig"
+        self.size=(400,400)
+        # get the first object that's selected
+        try:
+            self.prop = pm.selected()[0]
+        except IndexError:
+            raise IndexError(
+                'Nothing selected, unsure what to run on. Please select something')
         
     def createWindow(self):
         #if already window, then delete
@@ -34,31 +42,30 @@ class PropRig(object):
         self.window=pm.window(
                               self.window,
                               title=self.title,
-                              resizeToFitChildren = True,
+                              widthHeight = self.size,
                               menuBar=False)
-        uilayout= pm.columnLayout( adjustableColumn=True,rowSpacing=10)
+        uilayout= pm.columnLayout( adjustableColumn=True, rowSpacing=10)
         self.windowItems(uilayout)
         pm.showWindow()
    
     def windowItems(self,layout):
-        pm.text(label="", align='center',parent=layout)
         #adding labels and text fields
-        pm.text(label="Master Ctrl Name", align='center',parent=layout)
-        master_name=pm.textField(placeholderText='UH-oh',parent =layout)
-        pm.text(label="Offset Ctrl Name", align='center',parent=layout)
-        offset_name=pm.textField(parent =layout)
-        pm.button(label="Apply",command=self.Rigging(master_name, offset_name))
+        #textfieldgrp
+        self.master_name = pm.textFieldGrp(label='Master CTRL Name:',placeholderText=self.prop+'_master_CTRL', parent=layout)
+        self.master_color = pm.colorIndexSliderGrp(label='Color:',minValue=14, maxValue=20, parent=layout)
+        self.offset_name = pm.textFieldGrp(label='Offset CTRL Name:', placeholderText=self.prop+'_offset_CTRL', parent=layout)
+        self.offset_color = pm.colorIndexSliderGrp(label='Color:', minValue=14, maxValue=20, parent=layout)
+        # pm.button(label="Apply",command=partial(self.ct_Rigging, master_name, master_color, offset_name, offset_color))
+        self.applybtn = pm.button(label="Apply",command=self.ct_Rigging)
 
-    def Rigging(self, master_name, offset_name):
-
-        # get the first object that's selected
-        try:
-            prop = pm.selected()[0]
-            prop_transform = prop.getTransform()  # holds transform node
-        except IndexError:
-            raise IndexError(
-                'Nothing selected, unsure what to run on. Please select something')
-
+    def ct_Rigging(self, *args):
+        # holds transform node
+        master_name = self.master_name.getText()
+        master_color = self.master_color.getValue()
+        offset_name = self.offset_name.getText()
+        offset_color = self.offset_color.getValue()
+        
+        prop_transform = self.prop.getTransform()  
         # center the prop by the pivot
         pm.move(0, 0, 0, prop_transform, rotatePivotRelative=True)
 
@@ -75,21 +82,21 @@ class PropRig(object):
         # Create the CTRLS with radius bigger than the boundingBox
 
         master_ctrl = pm.circle(c=(0, 0, 0), r=radius +
-                                radius * 0.5, name=prop_transform+'_master_CTRL')
+                                radius * 0.5, name=master_name)
         pm.rotate(master_ctrl, 90, 0, 0)
         pm.makeIdentity(master_ctrl[0], apply=True,
                         scale=True, translate=True, rotate=True)
 
         offset_ctrl = pm.circle(c=(0, 0, 0), r=radius +
-                                radius * 0.3, name=prop_transform+'_offset_CTRL')
+                                radius * 0.3, name=offset_name)
         pm.rotate(offset_ctrl, 90, 0, 0)
         pm.makeIdentity(offset_ctrl[0], apply=True,
                         scale=True, translate=True, rotate=True)
 
         # Basic parenting Hierarchy
         pm.parent(offset_ctrl, master_ctrl, s=True, r=True)
-        geo_grp_name = pm.group(prop, name=prop_transform + '_GEO_GRP')
+        geo_grp_name = pm.group(self.prop, name= self.prop + '_GEO_GRP')
         pm.parentConstraint(offset_ctrl, geo_grp_name)
 
-propRig= PropRig()
-propRig.createWindow();
+propRig= CT_PropRig()
+propRig.createWindow()
