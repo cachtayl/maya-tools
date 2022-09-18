@@ -21,6 +21,7 @@ Note:
 
 '''
 from cgitb import text
+from doctest import master
 import pymel.core as pm
 from functools import partial
 
@@ -53,23 +54,6 @@ class CT_PropRig(object):
         pm.showWindow()
    
     def windowItems(self,layout):
-        #adding labels and text fields
-        #textfieldgrp
-        self.master_name = pm.textFieldGrp(label='Master CTRL Name:',text=self.prop+'_master_CTRL', parent=layout)
-        self.master_color = pm.colorIndexSliderGrp(label='Color:',minValue=5, maxValue=20, value= 14, parent=layout)
-        pm.separator(h = 10)
-        self.offset_name = pm.textFieldGrp(label='Offset CTRL Name:', text=self.prop+'_offset_CTRL', parent=layout)
-        self.offset_color = pm.colorIndexSliderGrp(label='Color:', minValue=5, maxValue=20, value= 16, parent=layout)
-        
-        self.applybtn = pm.button(label="Apply and Close",command=self.ct_Rigging)
-
-    def ct_Rigging(self, *args):
-        # holds transform node
-        master_name = self.master_name.getText()
-        master_color = self.master_color.getValue() - 1
-        offset_name = self.offset_name.getText()
-        offset_color = self.offset_color.getValue() - 1
-        
         prop_transform = self.prop.getTransform()
 
         # Grab pivot in worldSpace
@@ -85,36 +69,66 @@ class CT_PropRig(object):
 
         radius = max(bb_max_x, abs(bb_min_x))
 
-        # Create the CTRLS with radius bigger than the boundingBox
+        # Intialize CTRLS
 
-        master_ctrl = pm.circle(c=(0,0,0), r=radius +
-                                radius * 0.5, name=master_name)
-        pm.rotate(master_ctrl, 90, 0, 0)
+        self.master_ctrl = pm.circle(c=(0,0,0), r=radius + radius * 0.5, name=self.prop+'_master_CTRL')
+        pm.rotate(self.master_ctrl, 90, 0, 0)
+        pm.setAttr(self.master_ctrl[0] + "Shape.overrideEnabled", True)
+        pm.setAttr(self.master_ctrl[0] + "Shape.overrideColor", 4)
+
+        self.offset_ctrl = pm.circle(c=(0,0,0), r=radius + radius * 0.3, name=self.prop+'_offset_CTRL')
+        pm.rotate(self.offset_ctrl, 90, 0, 0)
+        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideEnabled", True)
+        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideColor", 4)
+
         #freeze transformations
-        pm.makeIdentity(master_ctrl[0], apply=True,
+        pm.makeIdentity(self.master_ctrl[0], apply=True,
                         scale=True, translate=True, rotate=True)
-        pm.setAttr(master_name + "Shape.overrideEnabled", True)
-        pm.setAttr(master_name + "Shape.overrideColor", master_color)
+        pm.makeIdentity(self.offset_ctrl[0], apply=True,
+                        scale=True, translate=True, rotate=True)
 
-        offset_ctrl = pm.circle(c=(0,0,0), r=radius +
-                                radius * 0.3, name=offset_name)
-        pm.rotate(offset_ctrl, 90, 0, 0)
+        #UI elements
+        self.master_name = pm.textFieldGrp(label='Master CTRL Name:',text=self.prop+'_master_CTRL', parent=layout)
+        self.master_color = pm.colorIndexSliderGrp(label='Color:',minValue=5, maxValue=20, dragCommand=self.master_drag_color, parent=layout)
+        
+        pm.separator(h = 10)
+        
+        self.offset_name = pm.textFieldGrp(label='Offset CTRL Name:', text=self.prop+'_offset_CTRL', parent=layout)
+        self.offset_color = pm.colorIndexSliderGrp(label='Color:', minValue=5, maxValue=20, dragCommand=self.offset_drag_color, parent=layout)
+        
+        
+        self.applybtn = pm.button(label="Apply and Close",command=self.ct_Rigging)
+    
+    def ct_Rigging(self, *args):
+        # holds transform node
+        master_name = self.master_name.getText()
+        offset_name = self.offset_name.getText()
+
+        pm.rename(self.master_ctrl[0], master_name)
+        pm.rename(self.offset_ctrl[0], offset_name)
+        
         #freeze transformations
-        pm.makeIdentity(offset_ctrl[0], apply=True,
+        pm.makeIdentity(self.master_ctrl[0], apply=True,
                         scale=True, translate=True, rotate=True)
-        pm.setAttr(offset_name + "Shape.overrideEnabled", True)
-        pm.setAttr(offset_name + "Shape.overrideColor", offset_color)
-
+        pm.makeIdentity(self.offset_ctrl[0], apply=True,
+                        scale=True, translate=True, rotate=True)
 
         # Parenting Ctrls
-        pm.parent(offset_ctrl, master_ctrl, s=True, r=True)
+        pm.parent(offset_name, master_name, s=True, r=True)
         geo_grp_name = pm.group(self.prop, name= self.prop + '_GEO_GRP')
-        pm.parentConstraint(offset_ctrl, geo_grp_name, maintainOffset = True)
+        pm.parentConstraint(self.offset_ctrl, geo_grp_name, maintainOffset = True)
         #delete history of ctrl
-        pm.delete(master_ctrl, ch=True)
+        pm.delete(self.master_ctrl, ch=True)
         #closes window
         pm.deleteUI(self.window, window = True)
-
+    
+    def master_drag_color(self):
+        pm.setAttr(self.master_ctrl[0] + "Shape.overrideEnabled", True)
+        pm.setAttr(self.master_ctrl[0] + "Shape.overrideColor", self.master_color.getValue())
+    
+    def offset_drag_color(self):
+        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideEnabled", True)
+        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideColor", self.offset_color.getValue())
 
 propRig= CT_PropRig()
 propRig.createWindow()
