@@ -5,13 +5,6 @@ Created September 2022
 Simple Prop Rig - a script that does conventional prop rigging for you
 https://github.com/cachtayl/maya-tools
 
-Future GUI:
-Window with help menu option that opens doc in github
-checkbox = center the prop/leave in current place
-float slider that changes the size of master ctrl
-float slider that changes the size of offset ctrl(max = mastr radius)
-color picker for ctrls
-
 Usage:  Select object in scene and execute this script
 Output: Master and Offset controllers parented to a group holding the prop
 
@@ -22,8 +15,8 @@ Note:
 '''
 from cgitb import text
 from doctest import master
+import math
 import pymel.core as pm
-from functools import partial
 
 class CT_PropRig(object):
 
@@ -66,20 +59,28 @@ class CT_PropRig(object):
         bb = pm.exactWorldBoundingBox(prop_transform)
         bb_min_x = bb[0]  # x-min of object in world space
         bb_max_x = bb[3]  # x-max of object in world space
+        bb_min_z = bb[2]  # z-min of object in world space
+        bb_max_z = bb[5]  # z-max of object in world space
+        print(bb)
+        hypot = lambda x, z: math.sqrt(x*x + z*z)
 
-        radius = max(bb_max_x, abs(bb_min_x))
+        radius = max(hypot(bb_min_x, bb_min_z), hypot(bb_min_x, bb_max_z), hypot(bb_max_x, bb_min_z), hypot(bb_max_x, bb_max_z))
+        print(radius)
 
         # Intialize CTRLS
 
-        self.master_ctrl = pm.circle(c=(0,0,0), r=radius + radius * 0.5, name=self.prop+'_master_CTRL')
+        self.master_ctrl = pm.circle(c=(0,0,0), r=radius + radius * 0.1, name=self.prop+'_master_CTRL')
         pm.rotate(self.master_ctrl, 90, 0, 0)
         pm.setAttr(self.master_ctrl[0] + "Shape.overrideEnabled", True)
         pm.setAttr(self.master_ctrl[0] + "Shape.overrideColor", 4)
 
-        self.offset_ctrl = pm.circle(c=(0,0,0), r=radius + radius * 0.3, name=self.prop+'_offset_CTRL')
+        self.offset_ctrl = pm.circle(c=(0,0,0), r=radius, name=self.prop+'_offset_CTRL')
         pm.rotate(self.offset_ctrl, 90, 0, 0)
         pm.setAttr(self.offset_ctrl[0] + "Shape.overrideEnabled", True)
         pm.setAttr(self.offset_ctrl[0] + "Shape.overrideColor", 4)
+        
+        #Deselect the circle so the user can see the color change interactively
+        pm.select(self.offset_ctrl, deselect=True)
 
         #freeze transformations
         pm.makeIdentity(self.master_ctrl[0], apply=True,
@@ -90,13 +91,14 @@ class CT_PropRig(object):
         #UI elements
         self.master_name = pm.textFieldGrp(label='Master CTRL Name:',text=self.prop+'_master_CTRL', parent=layout)
         self.master_color = pm.colorIndexSliderGrp(label='Color:',minValue=5, maxValue=20, dragCommand=self.master_drag_color, parent=layout)
+        self.master_radius = pm.floatSliderGrp(label='Radius:', minValue = radius + radius*0.10, maxValue= radius*3.0, dragCommand=self.master_drag_radius, parent = layout)
         
         pm.separator(h = 10)
         
         self.offset_name = pm.textFieldGrp(label='Offset CTRL Name:', text=self.prop+'_offset_CTRL', parent=layout)
         self.offset_color = pm.colorIndexSliderGrp(label='Color:', minValue=5, maxValue=20, dragCommand=self.offset_drag_color, parent=layout)
-        
-        
+        self.offset_radius = pm.floatSliderGrp(label='Radius:', minValue = radius, maxValue= radius*3.0, dragCommand=self.offset_drag_radius, parent = layout)
+
         self.applybtn = pm.button(label="Apply and Close",command=self.ct_Rigging)
     
     def ct_Rigging(self, *args):
@@ -122,6 +124,13 @@ class CT_PropRig(object):
         #closes window
         pm.deleteUI(self.window, window = True)
     
+    #Interactive Effects
+    def master_drag_radius(self, *args):
+        pm.circle(self.master_ctrl, edit = True, radius = self.master_radius.getValue())
+    
+    def offset_drag_radius(self, *args):
+        pm.circle(self.offset_ctrl, edit = True, radius = self.offset_radius.getValue())
+        
     def master_drag_color(self):
         pm.setAttr(self.master_ctrl[0] + "Shape.overrideEnabled", True)
         pm.setAttr(self.master_ctrl[0] + "Shape.overrideColor", self.master_color.getValue())
