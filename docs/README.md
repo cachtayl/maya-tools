@@ -9,6 +9,7 @@
 <div>
     <!-- CT Simple Prop Rig -->
     <h1> CT Simple Prop Rig </h1>
+    <img src="./media/ct_ui_simple_prop_rig.jpg" align="right" alt="CT Simple Prop Rig GUI">
     <p>This script creates the industry standard's prop rig for you<br>Helpful for artists who want to skip the repetitive task 
     of making your model <b>production ready</b>, which includes master/offset controllers, parenting hierarchy, and coloring/naming.</p>
     <p><b>How to use it:</b>
