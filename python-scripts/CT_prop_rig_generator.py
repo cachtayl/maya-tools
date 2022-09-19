@@ -2,7 +2,7 @@
 Created September 2022
 @author- camtaylor1999@gmail.com
 
-Simple Prop Rig - a script that does conventional prop rigging for you
+Prop Rig Generator- a script that does conventional prop rigging for you
 https://github.com/cachtayl/maya-tools
 
 Usage:  Select object in scene and execute this script
@@ -20,11 +20,10 @@ Automated Steps:
     c) Parent constrains the group to the offset Ctrl
 '''
 import math
-from turtle import width
 import pymel.core as pm
 
 
-class CT_PropRig(object):
+class CT_Prop_Rig(object):
 
     def __init__(self):
         # window name and set up, variables
@@ -51,7 +50,7 @@ class CT_PropRig(object):
         uilayout = pm.columnLayout(adjustableColumn=True, rowSpacing=10)
         self.windowItems(uilayout)
         pm.showWindow()
-        pm.window(self.window, e=True, width=200, height= 200)
+        pm.window(self.window, e=True, width=200, height=200)
 
     def windowItems(self, layout):
         prop_transform = self.prop.getTransform()
@@ -157,5 +156,5 @@ class CT_PropRig(object):
             self.offset_ctrl[0] + "Shape.overrideColor", self.offset_color.getValue())
 
 
-propRig = CT_PropRig()
+propRig = CT_Prop_Rig()
 propRig.createWindow()

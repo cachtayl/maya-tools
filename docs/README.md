@@ -12,11 +12,13 @@
     <img src="./media/ct_ui_prop_rig_generator.JPG" alt="CT Prop Rig Generator GUI">
     <p>This script generates the industry standard's prop rig for you<br>Helpful for artists who want to skip the repetitive task 
     of making your model <b>production ready</b>, which includes master/offset controllers, parenting hierarchy, and coloring/naming.</p>
+    <p><b>Important Note: </b> The controllers are centered around your prop's pivot point</p>
     <p><b>How to use it:</b>
     <br>1. Select the model you want to rig
-    <br>2. Run Script
-    <br>3. Customize your controllers in the pop-up window
-    <br>4. Click on the "Apply and Close" button when done with customization</p>
+    <br>2. Make sure the model's pivot point is placed where you want the controllers to be centered
+    <br>3. Run Script
+    <br>4. Customize your controllers in the pop-up window
+    <br>5. Click on the "Apply and Close" button when done with customization</p>
     <p><b>Master CTRL Name: </b><br>Text field to name the master controller. Will execute after clicking "Apply and Close"</p>
     <p><b>Color: </b><br>Color index slider to interactively change the color of the controller</p>
     <p><b>Radius: </b><br>Float slider to interactively change the radius of the controller</p>
