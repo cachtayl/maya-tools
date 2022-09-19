@@ -6,7 +6,7 @@ This is my collection of python scripts for Autodesk Maya!
 
 <p>Hopefully these scripts are as helpful to you as they are to me.</p>
 
-<p><b>Tested using Autodeks Maya 2022</b></p>
+<p><b>Tested using Autodesk Maya 2022</b></p>
 
 
 <h1> Organization </h1>
