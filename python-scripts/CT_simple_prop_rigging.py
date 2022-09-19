@@ -20,6 +20,7 @@ Automated Steps:
     c) Parent constrains the group to the offset Ctrl
 '''
 import math
+from turtle import width
 import pymel.core as pm
 
 
@@ -29,7 +30,7 @@ class CT_PropRig(object):
         # window name and set up, variables
         self.window = "CT_Window"
         self.title = "Simple Prop Rig"
-        self.size = (400, 400)
+        self.size = (200, 200)
         # get the first object that's selected
         try:
             self.prop = pm.selected()[0]
@@ -44,12 +45,13 @@ class CT_PropRig(object):
         self.window = pm.window(
             self.window,
             title=self.title,
-            widthHeight=self.size,
+            rtf=True,
             menuBar=False,
         )
         uilayout = pm.columnLayout(adjustableColumn=True, rowSpacing=10)
         self.windowItems(uilayout)
         pm.showWindow()
+        pm.window(self.window, e=True, width=200, height= 200)
 
     def windowItems(self, layout):
         prop_transform = self.prop.getTransform()

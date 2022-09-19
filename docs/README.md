@@ -14,7 +14,7 @@
     <p><b>How to use it:</b>
     <br>1. Select the model you want to rig
     <br>2. Run Script
-    <br>3. Customize your controllers in the pop-up window</p>
+    <br>3. Customize your controllers in the pop-up window
     <br>4. Click on the "Apply and Close" button when done with customization</p>
     <p><b>Master CTRL Name: </b><br>Text field to name the master controller. Will execute after clicking "Apply and Close"</p>
     <p><b>Color: </b><br>Color index slider to interactively change the color of the controller</p>
