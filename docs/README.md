@@ -6,7 +6,6 @@
         <li><a href="#-ct-simple-prop-rig-">CT Simple Prop Rig</a></li>
     </ul>
 </div>
-</br>
 <div>
     <!-- CT Simple Prop Rig -->
     <h1> CT Simple Prop Rig </h1>
