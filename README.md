@@ -16,3 +16,5 @@ This is my collection of python scripts for Autodesk Maya!
 <h1> Contributors </h1>
 If you'd like to contribute, please fork the repository and make changes as you'd like. <br><b>Pull requests are warmly welcome.</b>
 <p></p>
+<h1> License </h1>
+<p>MIT License 2022 - Cameron Taylor</p>
