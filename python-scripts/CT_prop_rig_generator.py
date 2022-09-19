@@ -8,6 +8,9 @@ https://github.com/cachtayl/maya-tools
 Usage:  Select object in scene and execute this script
 Output: Master and Offset controllers parented to a group holding the prop
 
+Future GUI Ideas:
+Checkbox to lock the prop transforms and make not selectable
+
 Automated Steps: 
 1) Moves the model, by the pivot, to the origin
 2) Creates master/offset ctrls centered around the pivot of the model
