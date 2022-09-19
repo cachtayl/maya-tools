@@ -3,14 +3,14 @@
     <h1> Scripts </h1>
     <h3><b>Tools:</b></h3>
     <ul>
-        <li><a href="#-ct-simple-prop-rig-">CT Simple Prop Rig</a></li>
+        <li><a href="#-ct-prop-rig-generator">CT Simple Prop Rig</a></li>
     </ul>
 </div>
 <div>
-    <!-- CT Simple Prop Rig -->
-    <h1> CT Simple Prop Rig </h1>
-    <img src="./media/ct_ui_simple_prop_rig.JPG" alt="CT Simple Prop Rig GUI">
-    <p>This script creates the industry standard's prop rig for you<br>Helpful for artists who want to skip the repetitive task 
+    <!-- CT Prop Rig Generator -->
+    <h1> CT Prop Rig Generator</h1>
+    <img src="./media/ct_ui_prop_rig_generator.JPG" alt="CT Prop Rig Generator GUI">
+    <p>This script generates the industry standard's prop rig for you<br>Helpful for artists who want to skip the repetitive task 
     of making your model <b>production ready</b>, which includes master/offset controllers, parenting hierarchy, and coloring/naming.</p>
     <p><b>How to use it:</b>
     <br>1. Select the model you want to rig
