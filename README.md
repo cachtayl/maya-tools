@@ -1,5 +1,5 @@
 # maya-tools 
-<!-- GT Tools README.md file -->
+<!-- CT maya-tools README.md file -->
 <p></p>
 <h1> Description </h1>
 This is my collection of python scripts for Autodesk Maya!
