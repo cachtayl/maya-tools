@@ -74,7 +74,7 @@ class CT_Ref_Img_Setup(object):
         #(Later: check os at runtime and then change dialogStyle)
         self.front_img_path = pm.fileDialog2(fileMode = 1, dialogStyle = 1)
         self.front_img_plane = pm.imagePlane( fileName = self.front_img_path[0])
-        self.front_img_browser = pm.textFieldButtonGrp(edit =True, text=self.front_img_path[0])
+        self.front_img_browser = pm.textFieldButtonGrp(edit = True, text=self.front_img_path[0])
     def apply_close(self, *args):
         # holds transform node
         front_name = self.front_name.getText()
