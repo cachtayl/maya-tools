@@ -16,26 +16,15 @@ Future GUI Ideas:
 - Naming text fields
 
 Automated Steps:
-
-
 '''
-import math
 import pymel.core as pm
-
-
-class CT_Prop_Rig(object):
+class CT_Ref_Img_Setup(object):
 
     def __init__(self):
         # window name and set up, variables
         self.window = "CT_Window"
         self.title = "Reference Images Generator"
         self.size = (200, 200)
-        # get the first object that's selected
-        try:
-            self.prop = pm.selected()[0]
-        except IndexError:
-            raise IndexError(
-                'Nothing selected, unsure what to run on. Please select something')
 
     def createWindow(self):
         # delete existing windows
@@ -53,108 +42,61 @@ class CT_Prop_Rig(object):
         pm.window(self.window, e=True, width=200, height=200)
 
     def windowItems(self, layout):
-        prop_transform = self.prop.getTransform()
-
-        # center the prop by the pivot
-        pm.move(0, 0, 0, prop_transform, rotatePivotRelative=True)
-
-        bb = pm.exactWorldBoundingBox(prop_transform)
-        bb_min_x = bb[0]  # x-min of object in world space
-        bb_max_x = bb[3]  # x-max of object in world space
-        bb_min_z = bb[2]  # z-min of object in world space
-        bb_max_z = bb[5]  # z-max of object in world space
-
-        # default radius = furthest vertex of the prop's projection on xz plane
-        def hypot(x, z): return math.sqrt(x*x + z*z)
-        radius = max(hypot(bb_min_x, bb_min_z), hypot(bb_min_x, bb_max_z), hypot(
-            bb_max_x, bb_min_z), hypot(bb_max_x, bb_max_z))
-
-        # intialize CTRLS
-
-        self.master_ctrl = pm.circle(
-            c=(0, 0, 0), r=radius + radius * 0.1, name=self.prop+'_master_CTRL')
-        pm.rotate(self.master_ctrl, 90, 0, 0)
-        pm.setAttr(self.master_ctrl[0] + "Shape.overrideEnabled", True)
-        pm.setAttr(self.master_ctrl[0] + "Shape.overrideColor", 4)
-
-        self.offset_ctrl = pm.circle(
-            c=(0, 0, 0), r=radius, name=self.prop+'_offset_CTRL')
-        pm.rotate(self.offset_ctrl, 90, 0, 0)
-        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideEnabled", True)
-        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideColor", 4)
-
-        # deselect the circle so the user can see the color change interactively
-        pm.select(self.offset_ctrl, deselect=True)
-
-        # freeze transformations
-        pm.makeIdentity(self.master_ctrl[0], apply=True,
-                        scale=True, translate=True, rotate=True)
-        pm.makeIdentity(self.offset_ctrl[0], apply=True,
-                        scale=True, translate=True, rotate=True)
-
         # UI elements
-        self.master_name = pm.textFieldGrp(
-            label='Master CTRL Name:', text=self.prop+'_master_CTRL', parent=layout)
-        self.master_color = pm.colorIndexSliderGrp(
-            label='Color:', minValue=5, maxValue=20, dragCommand=self.master_drag_color, parent=layout)
-        self.master_radius = pm.floatSliderGrp(
-            label='Radius:', minValue=radius + radius*0.10, maxValue=radius*3.0, dragCommand=self.master_drag_radius, parent=layout)
-
+        self.front_name = pm.textFieldGrp(
+            label='Front Ref Image Name:', text='front_', parent=layout)
+        self.front_offset_x = pm.floatSliderGrp(
+            label='Offset X:', dragCommand=self.front_offset_drag_x, parent=layout)
+        self.front_offset_y = pm.floatSliderGrp(
+            label='Offset Y:', dragCommand=self.front_offset_drag_y, parent=layout)
+        self.front_img_browser = pm.textFieldButtonGrp(
+            label='Image Name: ',
+            editable=False,
+            buttonLabel = 'Browse',
+            buttonCommand=self.generate_front_image)
         pm.separator(h=10)
-
-        self.offset_name = pm.textFieldGrp(
-            label='Offset CTRL Name:', text=self.prop+'_offset_CTRL', parent=layout)
-        self.offset_color = pm.colorIndexSliderGrp(
-            label='Color:', minValue=5, maxValue=20, dragCommand=self.offset_drag_color, parent=layout)
-        self.offset_radius = pm.floatSliderGrp(
-            label='Radius:', minValue=radius, maxValue=radius*3.0, dragCommand=self.offset_drag_radius, parent=layout)
+        
+        self.side_name = pm.textFieldGrp(
+            label='Side Ref Image Name:', text='side_', parent=layout)
+        self.side_offset_x = pm.floatSliderGrp(
+            label='Offset X:', dragCommand=self.side_offset_drag_x, parent=layout)
+        self.side_offset_y = pm.floatSliderGrp(
+            label='Offset Y:', dragCommand=self.side_offset_drag_y, parent=layout)
+        #only works for Windows for now(Later: check os at runtime and then change dialogStyle)
+        # self.side_img_path = pm.fileDialog2(fileMode = 1, dialogStyle = 1)
+        # self.side_img_plane = pm.imagePlane(fileName = self.side_img_path[0])
+        # pm.rotate(self.side_img_plane, 0, 90, 0)
 
         self.applybtn = pm.button(
             label="Apply and Close", command=self.apply_close)
-
+    def generate_front_image(self, *args):
+        # Only works for Windows File Explorer for now
+        #(Later: check os at runtime and then change dialogStyle)
+        self.front_img_path = pm.fileDialog2(fileMode = 1, dialogStyle = 1)
+        self.front_img_plane = pm.imagePlane( fileName = self.front_img_path[0])
+        self.front_img_browser = pm.textFieldButtonGrp(edit =True, text=self.front_img_path[0])
     def apply_close(self, *args):
         # holds transform node
-        master_name = self.master_name.getText()
-        offset_name = self.offset_name.getText()
+        front_name = self.front_name.getText()
+        side_name = self.side_name.getText()
 
-        pm.rename(self.master_ctrl[0], master_name)
-        pm.rename(self.offset_ctrl[0], offset_name)
+        pm.imagePlane(self.front_img_plane, e=True, name=front_name)
+        pm.imagePlane(self.side_img_plane, e=True, name=side_name)
 
-        # freeze transformations
-        pm.makeIdentity(self.master_ctrl[0], apply=True,
-                        scale=True, translate=True, rotate=True)
-        pm.makeIdentity(self.offset_ctrl[0], apply=True,
-                        scale=True, translate=True, rotate=True)
-
-        # parenting Ctrls
-        pm.parent(offset_name, master_name, s=True, r=True)
-        geo_grp_name = pm.group(self.prop, name=self.prop + '_GEO_GRP')
-        pm.parentConstraint(self.offset_ctrl, geo_grp_name,
-                            maintainOffset=True)
-        # delete history of ctrl
-        pm.delete(self.master_ctrl, ch=True)
         # closes window
         pm.deleteUI(self.window, window=True)
 
     # interactive effects
-    def master_drag_radius(self, *args):
-        pm.circle(self.master_ctrl, edit=True,
-                  radius=self.master_radius.getValue())
+    def front_offset_drag_x(self, *args):
+        pass
+    def front_offset_drag_y(self, *args):
+        pass
 
-    def offset_drag_radius(self, *args):
-        pm.circle(self.offset_ctrl, edit=True,
-                  radius=self.offset_radius.getValue())
+    def side_offset_drag_x(self):
+        pass
 
-    def master_drag_color(self):
-        pm.setAttr(self.master_ctrl[0] + "Shape.overrideEnabled", True)
-        pm.setAttr(
-            self.master_ctrl[0] + "Shape.overrideColor", self.master_color.getValue())
+    def side_offset_drag_y(self):
+        pass
 
-    def offset_drag_color(self):
-        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideEnabled", True)
-        pm.setAttr(
-            self.offset_ctrl[0] + "Shape.overrideColor", self.offset_color.getValue())
-
-
-propRig = CT_Prop_Rig()
-propRig.createWindow()
+ref_imgs = CT_Ref_Img_Setup()
+ref_imgs.createWindow()
