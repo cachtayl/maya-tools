@@ -54,10 +54,16 @@ class Ref_gui(object):
 
         self.applybtn = pm.button(
             label="Apply and Close", command=self.apply_close)
-    
+
     def apply_close(self, *args):
         try:
-            pm.group(self.front.plane, self.side.plane, name='References')
+            # grp the imgs
+            self.grp_ref = pm.group(
+                self.front.plane, self.side.plane, name='references')
+            # make Reference Layer
+            pm.select(self.grp_ref)
+            self.layer_ref = pm.createDisplayLayer(name='ref_pics')
+            pm.setAttr(self.layer_ref+'.displayType', 2)
             # closes window
             pm.deleteUI(self.window, window=True)
         except:
@@ -68,7 +74,7 @@ class Ref_gui(object):
         pm.panelConfiguration(
             label="CT Ref Img Panel Layout",
             sceneConfig=True,
-            configString="paneLayout -e -cn \"bottom3\" -ps 1 100 40 -ps 2 50 60 -ps 3 50 60 $gMainPane;",
+            configString="paneLayout -e -cn \"bottom3\" -ps 1 100 50 -ps 2 50 50 -ps 3 50 50 $gMainPane;",
             addPanel=[
                 (False,
                          "Persp View",
