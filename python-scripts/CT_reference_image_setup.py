@@ -57,9 +57,6 @@ class CT_Ref_Img_Setup(object):
             label='Offset X:', dragCommand=self.front_offset_drag_x, minValue=-5.0, maxValue=5.0, visible = False, parent=layout)
         self.front_offset_y = pm.floatSliderGrp(
             label='Offset Y:', dragCommand=self.front_offset_drag_y, minValue=-5.0, maxValue=5.0,visible = False, parent=layout)
-
-        pm.separator(h=10)
-
         self.side_img_plane = ''
         self.side_img_browser = pm.textFieldButtonGrp(
             label='Side Image Path: ',
@@ -67,10 +64,10 @@ class CT_Ref_Img_Setup(object):
             buttonLabel = 'Browse',
             buttonCommand=self.generate_side_image)
         self.side_offset_x = pm.floatSliderGrp(
-            label='Offset X:', dragCommand=self.side_offset_drag_x, minValue=-5.0, maxValue=5.0 visible = False, parent=layout)
+            label='Offset X:', dragCommand=self.side_offset_drag_x, minValue=-5.0, maxValue=5.0, visible = False, parent=layout)
         self.side_offset_y = pm.floatSliderGrp(
-            label='Offset Y:', dragCommand=self.side_offset_drag_y, minValue=-5.0, maxValue=5.0 visible = False, parent=layout)
-
+            label='Offset Y:', dragCommand=self.side_offset_drag_y, minValue=-5.0, maxValue=5.0, visible = False, parent=layout)
+        pm.separator(h=3)
     def generate_front_image(self, *args):
         # Only works for Windows File Explorer for now
         # Later: check os at runtime and then change dialogStyle
@@ -98,16 +95,15 @@ class CT_Ref_Img_Setup(object):
     
     # interactive effects
     def front_offset_drag_x(self, *args):
-        if self.front_img_plane != '':
-            pm.move(self.front_img_plane[0], x= self.front_offset_x.getValue())
+        pm.move(self.front_offset_x.getValue(), self.front_img_plane, x=True)
     def front_offset_drag_y(self, *args):
-        pass
+        pm.move(self.front_offset_y.getValue(), self.front_img_plane, y=True)
 
-    def side_offset_drag_x(self):
-        pass
+    def side_offset_drag_x(self, *args):
+        pm.move(self.side_offset_x.getValue(), self.side_img_plane, x=True)
 
-    def side_offset_drag_y(self):
-        pass
+    def side_offset_drag_y(self, *args):
+        pm.move(self.side_offset_y.getValue(), self.side_img_plane, y=True)
     def overridePanelLayout(self):
         #Creates a Three Panes Bottom Split panel layout that is optimized for aligning the reference images
         pm.panelConfiguration(
