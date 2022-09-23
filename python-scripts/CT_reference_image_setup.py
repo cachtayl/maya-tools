@@ -116,7 +116,7 @@ class ImagePlane(object):
         self.offset_vert = pm.floatSliderGrp(
             label='Vertical Offset:', dragCommand=self.drag_vert, minValue=-10.0, maxValue=10.0, enable=False)
         self.scale = pm.floatSliderGrp(
-            label='Scale:', dragCommand=self.drag_scale, minValue=-5.0, maxValue=5.0, enable=False)
+            label='Scale:', dragCommand=self.drag_scale, minValue=0.0, value=1.0, maxValue=5.0, enable=False)
 
     def generate_image(self, *args):
         # only works for Windows File Explorer for now *Later* check os at runtime and then change dialogStyle
@@ -132,10 +132,11 @@ class ImagePlane(object):
         pm.floatSliderGrp(self.scale, edit=True, enable=True)
         if self.view == 'Side':
             pm.rotate(self.plane, 90, y=True)
-    
+
     def drag_scale(self, *args):
-        pm.scale( self.plane, self.scale.getValue(),self.scale.getValue(), self.scale.getValue(), xyz=True)
-        
+        pm.scale(self.plane, self.scale.getValue(),
+                 self.scale.getValue(), self.scale.getValue(), xyz=True)
+
     def drag_horiz(self, *args):
         if self.view == 'Front':
             pm.move(self.offset_horiz.getValue(), self.plane, x=True)
