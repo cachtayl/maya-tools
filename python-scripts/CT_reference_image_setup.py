@@ -17,15 +17,19 @@ Future GUI Ideas:
 
 Automated Steps:
 '''
+
+import maya.mel
 import pymel.core as pm
+
 class CT_Ref_Img_Setup(object):
 
     def __init__(self):
         # window name and set up, variables
         self.window = "CT_Window"
         self.title = "Reference Images Generator"
-        self.size = (200, 200)
-
+        self.size = (200, 20)
+        self.overridePanelLayout()
+        
     def createWindow(self):
         # delete existing windows
         if pm.window(self.window, exists=True):
@@ -39,56 +43,63 @@ class CT_Ref_Img_Setup(object):
         uilayout = pm.columnLayout(adjustableColumn=True, rowSpacing=10)
         self.windowItems(uilayout)
         pm.showWindow()
-        pm.window(self.window, e=True, width=200, height=200)
+        pm.window(self.window, e=True, width=200, height=1)
 
     def windowItems(self, layout):
         # UI elements
-        self.front_name = pm.textFieldGrp(
-            label='Front Ref Image Name:', text='front_', parent=layout)
-        self.front_offset_x = pm.floatSliderGrp(
-            label='Offset X:', dragCommand=self.front_offset_drag_x, parent=layout)
-        self.front_offset_y = pm.floatSliderGrp(
-            label='Offset Y:', dragCommand=self.front_offset_drag_y, parent=layout)
+        self.front_img_plane = ''
         self.front_img_browser = pm.textFieldButtonGrp(
-            label='Image Name: ',
+            label='Front Image Path: ',
             editable=False,
             buttonLabel = 'Browse',
             buttonCommand=self.generate_front_image)
-        pm.separator(h=10)
-        
-        self.side_name = pm.textFieldGrp(
-            label='Side Ref Image Name:', text='side_', parent=layout)
-        self.side_offset_x = pm.floatSliderGrp(
-            label='Offset X:', dragCommand=self.side_offset_drag_x, parent=layout)
-        self.side_offset_y = pm.floatSliderGrp(
-            label='Offset Y:', dragCommand=self.side_offset_drag_y, parent=layout)
-        #only works for Windows for now(Later: check os at runtime and then change dialogStyle)
-        # self.side_img_path = pm.fileDialog2(fileMode = 1, dialogStyle = 1)
-        # self.side_img_plane = pm.imagePlane(fileName = self.side_img_path[0])
-        # pm.rotate(self.side_img_plane, 0, 90, 0)
+        self.front_offset_x = pm.floatSliderGrp(
+            label='Offset X:', dragCommand=self.front_offset_drag_x, minValue=-5.0, maxValue=5.0, visible = False, parent=layout)
+        self.front_offset_y = pm.floatSliderGrp(
+            label='Offset Y:', dragCommand=self.front_offset_drag_y, minValue=-5.0, maxValue=5.0,visible = False, parent=layout)
 
-        self.applybtn = pm.button(
-            label="Apply and Close", command=self.apply_close)
+        pm.separator(h=10)
+
+        self.side_img_plane = ''
+        self.side_img_browser = pm.textFieldButtonGrp(
+            label='Side Image Path: ',
+            editable=False,
+            buttonLabel = 'Browse',
+            buttonCommand=self.generate_side_image)
+        self.side_offset_x = pm.floatSliderGrp(
+            label='Offset X:', dragCommand=self.side_offset_drag_x, minValue=-5.0, maxValue=5.0 visible = False, parent=layout)
+        self.side_offset_y = pm.floatSliderGrp(
+            label='Offset Y:', dragCommand=self.side_offset_drag_y, minValue=-5.0, maxValue=5.0 visible = False, parent=layout)
+
     def generate_front_image(self, *args):
         # Only works for Windows File Explorer for now
-        #(Later: check os at runtime and then change dialogStyle)
+        # Later: check os at runtime and then change dialogStyle
         self.front_img_path = pm.fileDialog2(fileMode = 1, dialogStyle = 1)
-        self.front_img_plane = pm.imagePlane( fileName = self.front_img_path[0])
-        self.front_img_browser = pm.textFieldButtonGrp(edit = True, text=self.front_img_path[0])
-    def apply_close(self, *args):
-        # holds transform node
-        front_name = self.front_name.getText()
-        side_name = self.side_name.getText()
-
-        pm.imagePlane(self.front_img_plane, e=True, name=front_name)
-        pm.imagePlane(self.side_img_plane, e=True, name=side_name)
-
-        # closes window
-        pm.deleteUI(self.window, window=True)
-
+        pm.textFieldButtonGrp(self.front_img_browser, edit = True, text=self.front_img_path[0])
+        #delete existing front planes
+        if self.front_img_plane != '':
+            pm.delete(self.front_img_plane)
+        self.front_img_plane = pm.imagePlane(name = 'front', fileName = self.front_img_path[0])
+        pm.floatSliderGrp(self.front_offset_x, edit=True, visible=True)
+        pm.floatSliderGrp(self.front_offset_y, edit=True, visible=True)
+    
+    def generate_side_image(self, *args):
+        # Only works for Windows File Explorer for now
+        # Later: check os at runtime and then change dialogStyle
+        self.side_img_path = pm.fileDialog2(fileMode = 1, dialogStyle = 1)
+        pm.textFieldButtonGrp(self.side_img_browser, edit = True, text=self.side_img_path[0])
+        #delete existing side planes
+        if self.side_img_plane != '':
+            pm.delete(self.side_img_plane)
+        self.side_img_plane = pm.imagePlane(name = 'side', fileName = self.side_img_path[0])
+        pm.floatSliderGrp(self.side_offset_x, edit=True, visible=True)
+        pm.floatSliderGrp(self.side_offset_y, edit=True, visible=True)
+        pm.rotate(self.side_img_plane, 0, 90, 0)
+    
     # interactive effects
     def front_offset_drag_x(self, *args):
-        pass
+        if self.front_img_plane != '':
+            pm.move(self.front_img_plane[0], x= self.front_offset_x.getValue())
     def front_offset_drag_y(self, *args):
         pass
 
@@ -97,6 +108,37 @@ class CT_Ref_Img_Setup(object):
 
     def side_offset_drag_y(self):
         pass
+    def overridePanelLayout(self):
+        #Creates a Three Panes Bottom Split panel layout that is optimized for aligning the reference images
+        pm.panelConfiguration(
+                label="CT Ref Img Panel Layout",
+                sceneConfig=True,
+                configString="paneLayout -e -cn \"bottom3\" -ps 1 100 35 -ps 2 50 65 -ps 3 50 65 $gMainPane;",
+                addPanel=[
+                        (False,
+                        "Persp View",
+                        "modelPanel",
+                        ("{global int $gUseMenusInPanels;\
+                        modelPanel -mbv $gUseMenusInPanels\
+                        -unParent -l \"Persp View\" -cam persp;}" ),
+                        "modelPanel -edit -l \"Persp View\"  -cam \"persp\" $panelName"),
+                        (False,
+                        "Side View",
+                        "modelPanel",
+                        ("{global int $gUseMenusInPanels;\
+                        modelPanel -mbv $gUseMenusInPanels\
+                        -unParent -l \"Side View\" -cam side;}" ),
+                        "modelPanel -edit -l \"Side View\"  -cam \"side\" $panelName"),
+                        (False,
+                        "Front View",
+                        "modelPanel",
+                        ("{global int $gUseMenusInPanels;\
+                        modelPanel -mbv $gUseMenusInPanels\
+                        -unParent -l \"Front View\" -cam front;}" ),
+                        "modelPanel -edit -l \"Front View\"  -cam \"front\" $panelName")
+                ]
+        )
+        maya.mel.eval('setNamedPanelLayout( "CT Ref Img Panel Layout" )')
 
 ref_imgs = CT_Ref_Img_Setup()
 ref_imgs.createWindow()
