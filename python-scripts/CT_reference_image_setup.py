@@ -48,16 +48,33 @@ class Ref_gui(object):
 
     def windowItems(self, layout):
         # UI elements
-        front = ImagePlane('Front')
+        self.front = ImagePlane('Front')
         pm.separator(h=10)
-        side = ImagePlane('Side')
+        self.side = ImagePlane('Side')
+
+        self.applybtn = pm.button(
+            label="Apply and Close", command=self.apply_close)
+
+    def apply_close(self, *args):
+        try:
+            # grp the imgs
+            self.grp_ref = pm.group(
+                self.front.plane, self.side.plane, name='references')
+            # make Reference Layer
+            pm.select(self.grp_ref)
+            self.layer_ref = pm.createDisplayLayer(name='ref_pics')
+            pm.setAttr(self.layer_ref+'.displayType', 2)
+            # closes window
+            pm.deleteUI(self.window, window=True)
+        except:
+            raise Exception('Must import front and side reference images.')
 
     def overridePanelLayout(self):
         # Creates a Three Panes Bottom Split panel layout that is optimized for aligning the reference images
         pm.panelConfiguration(
             label="CT Ref Img Panel Layout",
             sceneConfig=True,
-            configString="paneLayout -e -cn \"bottom3\" -ps 1 100 35 -ps 2 50 65 -ps 3 50 65 $gMainPane;",
+            configString="paneLayout -e -cn \"bottom3\" -ps 1 100 50 -ps 2 50 50 -ps 3 50 50 $gMainPane;",
             addPanel=[
                 (False,
                          "Persp View",
@@ -95,9 +112,9 @@ class ImagePlane(object):
             buttonLabel='Browse',
             buttonCommand=self.generate_image)
         self.offset_horiz = pm.floatSliderGrp(
-            label='Horizontal Offset:', dragCommand=self.drag_horiz, minValue=-5.0, maxValue=5.0, visible=False)
+            label='Horizontal Offset:', dragCommand=self.drag_horiz, minValue=-5.0, maxValue=5.0, enable=False)
         self.offset_vert = pm.floatSliderGrp(
-            label='Vertical Offset:', dragCommand=self.drag_vert, minValue=-5.0, maxValue=5.0, visible=False)
+            label='Vertical Offset:', dragCommand=self.drag_vert, minValue=-5.0, maxValue=5.0, enable=False)
 
     def generate_image(self, *args):
         # only works for Windows File Explorer for now *Later* check os at runtime and then change dialogStyle
@@ -108,8 +125,8 @@ class ImagePlane(object):
             pm.delete(self.plane)
         self.plane = pm.imagePlane(
             name=self.view + '_Reference', fileName=self.path[0])
-        pm.floatSliderGrp(self.offset_horiz, edit=True, visible=True)
-        pm.floatSliderGrp(self.offset_vert, edit=True, visible=True)
+        pm.floatSliderGrp(self.offset_horiz, edit=True, enable=True)
+        pm.floatSliderGrp(self.offset_vert, edit=True, enable=True)
         if self.view == 'Side':
             pm.rotate(self.plane, 90, y=True)
 
