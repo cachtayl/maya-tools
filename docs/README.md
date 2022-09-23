@@ -32,6 +32,19 @@
     <!-- CT Reference Images Setup -->
     <h1> CT Reference Images Setup</h1>
     <img src="./media/ct_ui_reference_images_generator.JPG" alt="CT Reference Images GUI">
-    <p>This script will setup your reference images<br>Helpful for artists who want a all-in-one interface to setup their ref imgs and make them
-    <b>production ready</b>, which includes alignment, grouping, and layer.</p>
+    <p>This script generates an interface that will simplify your reference image setup to a few clicks. <br>Helpful for Maya artists who want to quickly setup their reference images and make them aligned, grouped, and in a reference layer.</p>
+    <p><b>Important Note:</b> Currently only available for Windows.</p>
+    <p><b>How to use it:</b>
+    <br>1. Run Script
+    <br>2. Choose your Front and Side reference images(jpg or png)
+    <br>3. Adjust the images with the sliders to make them aligned where you want them
+    <br>4. Click "Apply and Close"</p>
+    <p><b>Image Path: </b><br>By pressing the "Browse" button you will be able to select an .jpg or .png file from your File Explorer.</p>
+    <p><b>Horizontal Offset: </b><br>Slider that interactively offsets the image horizontally</p>
+    <p><b>Vertical Offset: </b><br>Slider that interactively offsets the image vertically</p>
+    <p><b>Scale: </b><br>Slider that interactively scales the image in all dimensions</p>
+    <p><b>"Apply and Close" button: </b>
+    <br>a) Groups the image planes into <code>references</code>
+    <br>b) Creates a Reference Layer for the group</p>
+    <br>
 </div>
