@@ -12,7 +12,7 @@ Output: Free image planes with front and side profiles
 Future GUI Ideas:
 - Dropdown menu for measurement unit
 - Specify how many alignment planes you want to use
-- Scale and Alignment sliders for the image planes
+- Scale sliders for the image planes
 - Naming text fields
 
 Automated Steps:
@@ -94,10 +94,10 @@ class ImagePlane(object):
             editable=False,
             buttonLabel='Browse',
             buttonCommand=self.generate_image)
-        self.offset_x = pm.floatSliderGrp(
-            label='Offset X:', dragCommand=self.drag_x, minValue=-5.0, maxValue=5.0, visible=False)
-        self.offset_y = pm.floatSliderGrp(
-            label='Offset Y:', dragCommand=self.drag_y, minValue=-5.0, maxValue=5.0, visible=False)
+        self.offset_horiz = pm.floatSliderGrp(
+            label='Horizontal Offset:', dragCommand=self.drag_horiz, minValue=-5.0, maxValue=5.0, visible=False)
+        self.offset_vert = pm.floatSliderGrp(
+            label='Vertical Offset:', dragCommand=self.drag_vert, minValue=-5.0, maxValue=5.0, visible=False)
 
     def generate_image(self, *args):
         # only works for Windows File Explorer for now *Later* check os at runtime and then change dialogStyle
@@ -106,17 +106,21 @@ class ImagePlane(object):
         # overwrite plane
         if self.plane != '':
             pm.delete(self.plane)
-        self.plane = pm.imagePlane(fileName=self.path[0])
-        pm.floatSliderGrp(self.offset_x, edit=True, visible=True)
-        pm.floatSliderGrp(self.offset_y, edit=True, visible=True)
+        self.plane = pm.imagePlane(
+            name=self.view + '_Reference', fileName=self.path[0])
+        pm.floatSliderGrp(self.offset_horiz, edit=True, visible=True)
+        pm.floatSliderGrp(self.offset_vert, edit=True, visible=True)
         if self.view == 'Side':
             pm.rotate(self.plane, 90, y=True)
 
-    def drag_x(self, *args):
-        pm.move(self.offset_x.getValue(), self.plane, x=True)
+    def drag_horiz(self, *args):
+        if self.view == 'Front':
+            pm.move(self.offset_horiz.getValue(), self.plane, x=True)
+        else:
+            pm.move(self.offset_horiz.getValue(), self.plane, z=True)
 
-    def drag_y(self, *args):
-        pm.move(self.offset_y.getValue(), self.plane, y=True)
+    def drag_vert(self, *args):
+        pm.move(self.offset_vert.getValue(), self.plane, y=True)
 
 
 ref_imgs = Ref_gui()
