@@ -4,7 +4,7 @@
     <h3><b>Tools:</b></h3>
     <ul>
         <li><a href="#-ct-prop-rig-generator">CT Simple Prop Rig</a></li>
-        <li><a href="#-ct-reference-image-generator">CT Reference Images</a></li>
+        <li><a href="#-ct-reference-images-setup">CT Reference Images</a></li>
     </ul>
 </div>
 <div>
@@ -29,8 +29,8 @@
     <br>b) Places model in a "geo" group, as a level of abstraction (in case the model ever changes)
     <br>c) Makes the offset controller parent of the "geo" group </p>
     <br>
-    <!-- CT Reference Images -->
-    <h1> CT Reference Images</h1>
+    <!-- CT Reference Images Setup -->
+    <h1> CT Reference Images Setup</h1>
     <img src="./media/ct_ui_reference_images_generator.JPG" alt="CT Reference Images GUI">
     <p>This script will setup your reference images<br>Helpful for artists who want a all-in-one interface to setup their ref imgs and make them
     <b>production ready</b>, which includes alignment, grouping, and layer.</p>
