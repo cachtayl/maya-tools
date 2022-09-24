@@ -72,91 +72,68 @@ class CT_Prop_Rig(object):
         radius = max(hypot(bb_min_x, bb_min_z), hypot(bb_min_x, bb_max_z), hypot(
             bb_max_x, bb_min_z), hypot(bb_max_x, bb_max_z))
 
-        # intialize CTRLS
-
-        self.master_ctrl = pm.circle(
-            c=(0, 0, 0), r=radius + radius * 0.1, name=self.prop+'_master_CTRL')
-        pm.rotate(self.master_ctrl, 90, 0, 0)
-        pm.setAttr(self.master_ctrl[0] + "Shape.overrideEnabled", True)
-        pm.setAttr(self.master_ctrl[0] + "Shape.overrideColor", 4)
-
-        self.offset_ctrl = pm.circle(
-            c=(0, 0, 0), r=radius, name=self.prop+'_offset_CTRL')
-        pm.rotate(self.offset_ctrl, 90, 0, 0)
-        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideEnabled", True)
-        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideColor", 4)
-
-        # deselect the circle so the user can see the color change interactively
-        pm.select(self.offset_ctrl, deselect=True)
-
-        # freeze transformations
-        pm.makeIdentity(self.master_ctrl[0], apply=True,
-                        scale=True, translate=True, rotate=True)
-        pm.makeIdentity(self.offset_ctrl[0], apply=True,
-                        scale=True, translate=True, rotate=True)
-
-        # UI elements
-        self.master_name = pm.textFieldGrp(
-            label='Master CTRL Name:', text=self.prop+'_master_CTRL', parent=layout)
-        self.master_color = pm.colorIndexSliderGrp(
-            label='Color:', minValue=5, maxValue=20, dragCommand=self.master_drag_color, parent=layout)
-        self.master_radius = pm.floatSliderGrp(
-            label='Radius:', minValue=radius + radius*0.10, maxValue=radius*3.0, dragCommand=self.master_drag_radius, parent=layout)
-
+        self.master = Controller('Master', self.prop, radius + radius * 0.1)
         pm.separator(h=10)
-
-        self.offset_name = pm.textFieldGrp(
-            label='Offset CTRL Name:', text=self.prop+'_offset_CTRL', parent=layout)
-        self.offset_color = pm.colorIndexSliderGrp(
-            label='Color:', minValue=5, maxValue=20, dragCommand=self.offset_drag_color, parent=layout)
-        self.offset_radius = pm.floatSliderGrp(
-            label='Radius:', minValue=radius, maxValue=radius*3.0, dragCommand=self.offset_drag_radius, parent=layout)
+        self.offset = Controller('Offset', self.prop, radius)
 
         self.applybtn = pm.button(
             label="Apply and Close", command=self.apply_close)
 
     def apply_close(self, *args):
-        # holds transform node
-        master_name = self.master_name.getText()
-        offset_name = self.offset_name.getText()
-
-        pm.rename(self.master_ctrl[0], master_name)
-        pm.rename(self.offset_ctrl[0], offset_name)
-
-        # freeze transformations
-        pm.makeIdentity(self.master_ctrl[0], apply=True,
-                        scale=True, translate=True, rotate=True)
-        pm.makeIdentity(self.offset_ctrl[0], apply=True,
-                        scale=True, translate=True, rotate=True)
-
+        self.master.finalize()
+        self.offset.finalize()
         # parenting Ctrls
-        pm.parent(offset_name, master_name, s=True, r=True)
+        pm.parent(self.offset.ctrl, self.master.ctrl, s=True, r=True)
         geo_grp_name = pm.group(self.prop, name=self.prop + '_GEO_GRP')
-        pm.parentConstraint(self.offset_ctrl, geo_grp_name,
+        pm.parentConstraint(self.offset.ctrl, geo_grp_name,
                             maintainOffset=True)
         # delete history of ctrl
-        pm.delete(self.master_ctrl, ch=True)
+        pm.delete(self.master.ctrl, ch=True)
         # closes window
         pm.deleteUI(self.window, window=True)
 
+class Controller(object):
+    def __init__(self, purpose, prop, radius):
+        self.purpose = purpose
+        self.prop = prop
+        self.ctrl = pm.circle(
+            c=(0, 0, 0), r=radius, name=self.prop+'_'+purpose+'_CTRL')
+        pm.rotate(self.ctrl, 90, 0, 0)
+        pm.setAttr(self.ctrl[0] + "Shape.overrideEnabled", True)
+        pm.setAttr(self.ctrl[0] + "Shape.overrideColor", 4)
+        
+        if purpose == 'Offset':
+            # deselect the circle so the user can see the color change interactively
+            pm.select(self.ctrl, deselect=True)
+        
+        self.freeze()
+        # UI elements
+        self.name = pm.textFieldGrp(
+            label=purpose + ' CTRL name:', text=self.prop+'_'+purpose+'_CTRL')
+        self.color = pm.colorIndexSliderGrp(
+            label='Color:', minValue=5, maxValue=20, dragCommand=self.drag_color)
+        self.radius = pm.floatSliderGrp(
+            label='Radius:', minValue=radius, maxValue=radius*3.0, dragCommand=self.drag_radius)
+
+    # final touches
+    def finalize(self, *args):
+        pm.rename(self.ctrl[0], self.name.getText())
+        self.freeze()
+
+    # freeze transformations
+    def freeze(self):
+        pm.makeIdentity(self.ctrl[0], apply=True,
+                        scale=True, translate=True, rotate=True)
+
     # interactive effects
-    def master_drag_radius(self, *args):
-        pm.circle(self.master_ctrl, edit=True,
-                  radius=self.master_radius.getValue())
+    def drag_radius(self, *args):
+        pm.circle(self.ctrl, edit=True,
+                  radius=self.radius.getValue())
 
-    def offset_drag_radius(self, *args):
-        pm.circle(self.offset_ctrl, edit=True,
-                  radius=self.offset_radius.getValue())
-
-    def master_drag_color(self):
-        pm.setAttr(self.master_ctrl[0] + "Shape.overrideEnabled", True)
+    def drag_color(self):
+        pm.setAttr(self.ctrl[0] + "Shape.overrideEnabled", True)
         pm.setAttr(
-            self.master_ctrl[0] + "Shape.overrideColor", self.master_color.getValue())
-
-    def offset_drag_color(self):
-        pm.setAttr(self.offset_ctrl[0] + "Shape.overrideEnabled", True)
-        pm.setAttr(
-            self.offset_ctrl[0] + "Shape.overrideColor", self.offset_color.getValue())
+            self.ctrl[0] + "Shape.overrideColor", self.color.getValue())
 
 
 propRig = CT_Prop_Rig()
