@@ -11,10 +11,14 @@ Output: Free image planes with front and side profiles
 
 Future GUI Ideas:
 - Dropdown menu for measurement unit
+- Checkbox to see if they want the three panel view
 - Specify how many alignment planes you want to use
 - Naming text fields
 
-Automated Steps:
+Later implementations:
+-change from sliders to float fields
+-fix layout
+-Check os and implement a file dialog for other operating systems
 '''
 
 import maya.mel
