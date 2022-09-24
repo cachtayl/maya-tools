@@ -75,6 +75,7 @@ class CT_Prop_Rig(object):
         self.master = Controller('Master', self.prop, radius + radius * 0.1)
         pm.separator(h=10)
         self.offset = Controller('Offset', self.prop, radius)
+        pm.select(self.offset.ctrl, deselect=True)
 
         self.applybtn = pm.button(
             label="Apply and Close", command=self.apply_close)
@@ -101,10 +102,6 @@ class Controller(object):
         pm.rotate(self.ctrl, 90, 0, 0)
         pm.setAttr(self.ctrl[0] + "Shape.overrideEnabled", True)
         pm.setAttr(self.ctrl[0] + "Shape.overrideColor", 4)
-        
-        if purpose == 'Offset':
-            # deselect the circle so the user can see the color change interactively
-            pm.select(self.ctrl, deselect=True)
         
         self.freeze()
         # UI elements
