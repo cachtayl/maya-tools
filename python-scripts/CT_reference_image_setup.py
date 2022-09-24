@@ -12,7 +12,6 @@ Output: Free image planes with front and side profiles
 Future GUI Ideas:
 - Dropdown menu for measurement unit
 - Specify how many alignment planes you want to use
-- Scale sliders for the image planes
 - Naming text fields
 
 Automated Steps:
