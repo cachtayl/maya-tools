@@ -73,9 +73,9 @@ class CT_Prop_Rig(object):
             bb_max_x, bb_min_z), hypot(bb_max_x, bb_max_z))
 
         self.master = Controller('Master', self.prop, radius + radius * 0.1)
-        
+
         pm.separator(h=10)
-        
+
         self.offset = Controller('Offset', self.prop, radius)
         pm.select(self.offset.ctrl, deselect=True)
 
@@ -95,6 +95,7 @@ class CT_Prop_Rig(object):
         # closes window
         pm.deleteUI(self.window, window=True)
 
+
 class Controller(object):
     def __init__(self, purpose, prop, radius):
         self.purpose = purpose
@@ -104,7 +105,7 @@ class Controller(object):
         pm.rotate(self.ctrl, 90, 0, 0)
         pm.setAttr(self.ctrl[0] + "Shape.overrideEnabled", True)
         pm.setAttr(self.ctrl[0] + "Shape.overrideColor", 4)
-        
+
         self.freeze()
         # UI elements
         self.name = pm.textFieldGrp(
