@@ -73,7 +73,9 @@ class CT_Prop_Rig(object):
             bb_max_x, bb_min_z), hypot(bb_max_x, bb_max_z))
 
         self.master = Controller('Master', self.prop, radius + radius * 0.1)
+        
         pm.separator(h=10)
+        
         self.offset = Controller('Offset', self.prop, radius)
         pm.select(self.offset.ctrl, deselect=True)
 
